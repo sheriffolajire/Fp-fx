@@ -39,7 +39,7 @@ def calculate_duration(open_time, close_time):
     except Exception:
         return None
 
-# Labels the trade result as "win", "loss", "breakeven", or "unknown" based on the profit/loss value.
+# Labels trade results as "win", "loss", "breakeven", or "unknown" based on the profit/loss value.
 def get_trade_result(pnl):
     """
     Label trade result from profit/loss value.
