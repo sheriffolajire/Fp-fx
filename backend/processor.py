@@ -1,6 +1,7 @@
 import pandas as pd
 from database.db import get_connection
 
+
 # Processor module to calculate additional fields for trades.
 def calculate_rr(entry, stop_loss, take_profit, trade_type):
     """
@@ -23,8 +24,10 @@ def calculate_rr(entry, stop_loss, take_profit, trade_type):
             return None
 
         return round(reward / risk, 2)
+
     except Exception:
         return None
+
 
 # Calculates trade duration in minutes by converting open and close times to datetime and finding the difference.
 def calculate_duration(open_time, close_time):
@@ -34,10 +37,13 @@ def calculate_duration(open_time, close_time):
     try:
         open_dt = pd.to_datetime(open_time)
         close_dt = pd.to_datetime(close_time)
+
         duration = (close_dt - open_dt).total_seconds() / 60
         return round(duration, 2)
+
     except Exception:
         return None
+
 
 # Labels trade results as "win", "loss", "breakeven", or "unknown" based on the profit/loss value.
 def get_trade_result(pnl):
@@ -52,20 +58,35 @@ def get_trade_result(pnl):
         return "loss"
     return "breakeven"
 
+
 #Reads database trades.
 def process_trades():
     """
-    Read trades from the database, analyse extra fields, and return processed data.
+    Read trades from the database, compute:
+    - Net PnL (includes commission + swap)
+    - Trade result
+    - Duration
+    - Risk/Reward
     """
-    conn = get_connection()
 
+    conn = get_connection()
     df = pd.read_sql_query("SELECT * FROM trades", conn)
 
     if df.empty:
         conn.close()
         return df
 
-    df["trade_result"] = df["pnl"].apply(get_trade_result)
+    df["pnl"] = pd.to_numeric(df["pnl"], errors="coerce")
+    df["commission"] = pd.to_numeric(df.get("commission", 0), errors="coerce")
+    df["swap"] = pd.to_numeric(df.get("swap", 0), errors="coerce")
+
+    df["net_pnl"] = (
+        df["pnl"].fillna(0)
+        + df["commission"].fillna(0)
+        + df["swap"].fillna(0)
+    )
+
+    df["trade_result"] = df["net_pnl"].apply(get_trade_result)
 
     df["duration_minutes"] = df.apply(
         lambda row: calculate_duration(row["open_time"], row["close_time"]),

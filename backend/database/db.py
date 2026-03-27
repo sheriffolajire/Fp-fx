@@ -20,3 +20,4 @@ def init_db():
         conn.executescript(f.read())
     conn.commit()
     conn.close()
+    
