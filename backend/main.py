@@ -35,7 +35,7 @@ def print_ranked_dict(title: str, data: dict):
 #Print nested performance metrics for strategy analysis (like structure performance or trend performance).
 def print_nested_metrics(title: str, data: dict):
     """
-    Pretty print nested performance metrics (NEW 🔥)
+    Pretty print nested performance metrics (NEW)
     """
     print(f"\n  {title}:")
     if not data:
@@ -54,11 +54,11 @@ def main():
     init_db()
 
     # Import sample CSV
-    sample_file = Path("backend/data/samples/ReportHistory0.2-14186080.csv")
+    sample_file = Path("backend/data/samples/ReportHistory-deal1.csv")
     inserted = import_csv(sample_file)
 
    
-    IMPORT_OHLC = True  # ⚠️ set False after first successful import
+    IMPORT_OHLC = True 
 
     if IMPORT_OHLC:
         try:
